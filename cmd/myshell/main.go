@@ -23,6 +23,9 @@ func main() {
 			switch commands[0] {
 			case "exit":
 				return
+			case "echo":
+				var echoString string = strings.Join(commands[1:], " ")
+				fmt.Println(echoString)
 			}
 		}
 	}
