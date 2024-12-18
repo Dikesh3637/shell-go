@@ -3,24 +3,24 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/codecrafters-io/shell-starter-go/valid_commands"
 	"os"
 	"strings"
 )
 
 func main() {
 	//empty set using a map
-	set := make(map[string]struct{})
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
 		fmt.Fprint(os.Stdout, "$ ")
 		input, _ := reader.ReadString('\n')
-		input = strings.TrimSpace(input)
+		var command []string = getCommands(input)
 
-		if _, ok := set[input]; !ok {
+		if _, ok := valid_commands.ValidCommandSet[command[0]]; !ok {
 			fmt.Printf("%s: command not found\n", input)
 		} else {
-			switch input {
+			switch command[0] {
 			case "exit":
 				return
 			}
