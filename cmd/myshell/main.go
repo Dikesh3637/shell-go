@@ -15,12 +15,12 @@ func main() {
 	for {
 		fmt.Fprint(os.Stdout, "$ ")
 		input, _ := reader.ReadString('\n')
-		var command []string = getCommands(input)
+		var commands []string = getCommands(input)
 
-		if _, ok := valid_commands.ValidCommandSet[command[0]]; !ok {
-			fmt.Printf("%s: command not found\n", input)
+		if _, ok := valid_commands.ValidCommandSet[commands[0]]; !ok {
+			fmt.Printf("%s: command not found\n", commands[0])
 		} else {
-			switch command[0] {
+			switch commands[0] {
 			case "exit":
 				return
 			}
