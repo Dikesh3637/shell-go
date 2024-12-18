@@ -7,9 +7,17 @@ import (
 )
 
 func main() {
-	//Uncomment this block to pass the first stage
-	fmt.Fprint(os.Stdout, "$ ")
+	//empty set using a map
+	set := make(map[string]struct{})
 
-	//Wait for user input
-	bufio.NewReader(os.Stdin).ReadString('\n')
+	reader := bufio.NewReader(os.Stdin)
+
+	for {
+		fmt.Fprint(os.Stdout, "$ ")
+		input, _ := reader.ReadString('\n')
+
+		if _, ok := set[input]; !ok {
+			fmt.Printf("%s: command not found", input)
+		}
+	}
 }
