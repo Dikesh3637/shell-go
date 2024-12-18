@@ -41,6 +41,10 @@ func main() {
 				}
 			}
 
+		case "pwd":
+			pwd, _ := os.Getwd()
+			fmt.Println(pwd)
+
 		default:
 			cmd := exec.Command(commands[0], commands[1:]...)
 			cmdOutput, err := cmd.CombinedOutput()
