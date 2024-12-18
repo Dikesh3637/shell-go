@@ -19,6 +19,17 @@ func main() {
 
 		if _, ok := set[input]; !ok {
 			fmt.Printf("%s: command not found\n", input)
+		} else {
+			switch input {
+			case "exit":
+				return
+			}
 		}
 	}
+
+}
+
+func getCommands(input string) []string {
+	input = strings.TrimSpace(input)
+	return strings.Split(input, " ")
 }
