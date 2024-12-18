@@ -50,6 +50,9 @@ func main() {
 			if len(commands) == 1 {
 				fmt.Println(pwd)
 			} else {
+				if commands[1] == "~" {
+					commands[1] = os.Getenv("HOME")
+				}
 				if err := os.Chdir(commands[1]); err != nil {
 					fmt.Printf("cd: %s: %s\n", commands[1], "No such file or directory")
 				}
