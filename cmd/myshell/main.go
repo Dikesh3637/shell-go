@@ -2,10 +2,12 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
-	"github.com/codecrafters-io/shell-starter-go/valid_commands"
 	"os"
 	"strings"
+
+	"github.com/codecrafters-io/shell-starter-go/valid_commands"
 )
 
 func main() {
@@ -27,18 +29,37 @@ func main() {
 				var echoString string = strings.Join(commands[1:], " ")
 				fmt.Println(echoString)
 			case "type":
-				if _, ok = valid_commands.ValidCommandSet[commands[1]]; !ok {
-					fmt.Printf("%s: not found\n", commands[1])
-				} else {
+				if _, ok = valid_commands.ValidCommandSet[commands[1]]; ok {
 					fmt.Printf("%s is a shell builtin\n", commands[1])
-				}
+				} else {
+					if val, err := findInPath(commands[1]); err == nil {
+						fmt.Printf("%s is %s\n", commands[1], val)
+					} else {
+						fmt.Printf("%s: not found\n", commands[1])
+					}
 
+				}
 			default:
 				fmt.Printf("%s: not found\n", commands[0])
 			}
 		}
 	}
 
+}
+
+func findInPath(input string) (string, error) {
+	var err error
+	pathString := os.Getenv("PATH")
+	var path []string = strings.Split(pathString, ":")
+
+	for _, dir := range path {
+		if _, err := os.Stat(dir + "/" + input); err == nil {
+			return dir + "/" + input, err
+		}
+	}
+
+	err = errors.New("executable not found")
+	return "", err
 }
 
 func getCommands(input string) []string {
