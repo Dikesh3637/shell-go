@@ -5,4 +5,5 @@ var ValidCommandSet = map[string]struct{}{
 	"echo": {},
 	"type": {},
 	"pwd":  {},
+	"cd":   {},
 }

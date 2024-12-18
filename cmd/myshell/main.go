@@ -45,6 +45,16 @@ func main() {
 			pwd, _ := os.Getwd()
 			fmt.Println(pwd)
 
+		case "cd":
+			pwd, _ := os.Getwd()
+			if len(commands) == 1 {
+				fmt.Println(pwd)
+			} else {
+				if err := os.Chdir(commands[1]); err != nil {
+					fmt.Printf("cd: %s: %s\n", commands[1], "No such file or directory")
+				}
+			}
+
 		default:
 			cmd := exec.Command(commands[0], commands[1:]...)
 			cmdOutput, err := cmd.CombinedOutput()
