@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"github.com/codecrafters-io/shell-starter-go/valid_commands"
 	"os"
@@ -11,62 +10,47 @@ import (
 )
 
 func main() {
-	//empty set using a map
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
 		fmt.Fprint(os.Stdout, "$ ")
 		input, _ := reader.ReadString('\n')
-		var commands []string = getCommands(input)
+		commands := getCommands(input)
 
-		if _, ok := valid_commands.ValidCommandSet[commands[0]]; !ok {
-			fmt.Printf("%s: command not found\n", commands[0])
-		} else {
-			switch commands[0] {
-			case "exit":
-				return
+		if len(commands) == 0 {
+			// Skip empty input
+			continue
+		}
 
-			case "echo":
-				var echoString string = strings.Join(commands[1:], " ")
-				fmt.Println(echoString)
+		switch commands[0] {
+		case "exit":
+			return
 
-			case "type":
-				if _, ok = valid_commands.ValidCommandSet[commands[1]]; ok {
-					fmt.Printf("%s is a shell builtin\n", commands[1])
+		case "echo":
+			echoString := strings.Join(commands[1:], " ")
+			fmt.Println(echoString)
+
+		case "type":
+			if _, ok := valid_commands.ValidCommandSet[commands[1]]; ok {
+				fmt.Printf("%s is a shell builtin\n", commands[1])
+			} else {
+				if val, err := exec.LookPath(commands[1]); err == nil {
+					fmt.Printf("%s is %s\n", commands[1], val)
 				} else {
-					if val, err := findInPath(commands[1]); err == nil {
-						fmt.Printf("%s is %s\n", commands[1], val)
-					} else {
-						fmt.Printf("%s: not found\n", commands[1])
-					}
+					fmt.Printf("%s: not found\n", commands[1])
 				}
+			}
 
-			default:
-				if val, err := findInPath(commands[0]); err == nil {
-					cmd := exec.Command(val, commands[1:]...)
-					cmd.Run()
-				} else {
-					fmt.Printf("%s: not found\n", commands[0])
-				}
+		default:
+			cmd := exec.Command(commands[0], commands[1:]...)
+			cmdOutput, err := cmd.CombinedOutput()
+			if err != nil {
+				fmt.Printf("%s: %s\n", commands[0], "command not found")
+			} else {
+				fmt.Print(string(cmdOutput))
 			}
 		}
 	}
-
-}
-
-func findInPath(input string) (string, error) {
-	var err error
-	pathString := os.Getenv("PATH")
-	var path []string = strings.Split(pathString, ":")
-
-	for _, dir := range path {
-		if _, err := os.Stat(dir + "/" + input); err == nil {
-			return dir + "/" + input, err
-		}
-	}
-
-	err = errors.New("executable not found")
-	return "", err
 }
 
 func getCommands(input string) []string {
