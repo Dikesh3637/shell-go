@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"os"
-	"strings"
-
 	"github.com/codecrafters-io/shell-starter-go/valid_commands"
+	"os"
+	"os/exec"
+	"strings"
 )
 
 func main() {
@@ -25,9 +25,11 @@ func main() {
 			switch commands[0] {
 			case "exit":
 				return
+
 			case "echo":
 				var echoString string = strings.Join(commands[1:], " ")
 				fmt.Println(echoString)
+
 			case "type":
 				if _, ok = valid_commands.ValidCommandSet[commands[1]]; ok {
 					fmt.Printf("%s is a shell builtin\n", commands[1])
@@ -37,10 +39,15 @@ func main() {
 					} else {
 						fmt.Printf("%s: not found\n", commands[1])
 					}
-
 				}
+
 			default:
-				fmt.Printf("%s: not found\n", commands[0])
+				if val, err := findInPath(commands[0]); err == nil {
+					cmd := exec.Command(val, commands[1:]...)
+					cmd.Run()
+				} else {
+					fmt.Printf("%s: not found\n", commands[0])
+				}
 			}
 		}
 	}
