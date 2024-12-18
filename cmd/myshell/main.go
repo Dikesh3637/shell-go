@@ -26,6 +26,15 @@ func main() {
 			case "echo":
 				var echoString string = strings.Join(commands[1:], " ")
 				fmt.Println(echoString)
+			case "type":
+				if _, ok = valid_commands.ValidCommandSet[commands[1]]; !ok {
+					fmt.Printf("%s: not found\n", commands[1])
+				} else {
+					fmt.Printf("%s is a shell builtin\n", commands[1])
+				}
+
+			default:
+				fmt.Printf("%s: not found\n", commands[0])
 			}
 		}
 	}
