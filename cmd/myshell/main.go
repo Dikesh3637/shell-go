@@ -25,7 +25,7 @@ func main() {
 
 		switch commandSequence[0] {
 		case "exit":
-			return
+			os.Exit(0)
 
 		case "echo":
 			echoString := strings.Join(commandSequence[1:], " ")
