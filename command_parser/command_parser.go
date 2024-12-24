@@ -1,6 +1,8 @@
 package command_parser
 
-import "strings"
+import (
+	"strings"
+)
 
 func isSpace(char rune) bool {
 	return char == ' ' || char == '\t' || char == '\n'
@@ -10,6 +12,12 @@ func CommandParser(input string) []string {
 	input = strings.TrimSpace(input)
 	args := []string{}
 
+	doubleQuotedSpecialCharacters := map[rune]string{
+		'$':  "",
+		'\\': "",
+		'"':  "",
+	}
+
 	const (
 		isSingleQouted = iota
 		isDoubleQouted
@@ -18,7 +26,8 @@ func CommandParser(input string) []string {
 
 	currentState := isEscaped
 	skipNext := false
-	buff := ""
+	buffer := ""
+	isCommand := true
 
 	for i, arg := range input {
 		if skipNext {
@@ -27,55 +36,62 @@ func CommandParser(input string) []string {
 		}
 
 		switch arg {
-		case '\\':
-			if currentState == isDoubleQouted {
-				buff += string(arg)
-
-			} else if currentState == isSingleQouted {
-				buff += string(arg)
-
-			} else {
-				buff += string(input[i+1])
-				skipNext = true
-			}
 		case '"':
 			if currentState == isEscaped {
-				args = append(args, buff)
-				buff = ""
 				currentState = isDoubleQouted
+				buffer += string(input[i+1])
+				skipNext = true
 			} else if currentState == isDoubleQouted {
-				args = append(args, buff)
-				buff = ""
 				currentState = isEscaped
 			} else {
-				buff += string(arg)
+				buffer += string(arg)
 			}
 		case '\'':
-			if currentState == isDoubleQouted {
-				buff += string(arg)
+			if currentState == isEscaped {
+				currentState = isSingleQouted
+				buffer += string(input[i+1])
+				skipNext = true
 			} else if currentState == isSingleQouted {
-				args = append(args, buff)
-				buff = ""
 				currentState = isEscaped
 			} else {
-				args = append(args, buff)
-				buff = ""
-				currentState = isSingleQouted
+				buffer += string(arg)
 			}
-		default:
-			if arg == ' ' {
-				if currentState == isEscaped {
-					args = append(args, buff)
-					buff = ""
-					break
+		case '\\':
+			if currentState == isEscaped {
+				buffer += string(input[i+1])
+				skipNext = true
+			} else if currentState == isDoubleQouted {
+				_, ok := doubleQuotedSpecialCharacters[rune(input[i+1])]
+				if ok {
+					buffer += string(input[i+1])
+					skipNext = true
+				} else {
+					buffer += string(arg)
 				}
+			} else if currentState == isSingleQouted {
+				buffer += string(arg)
+			}
+		case ' ':
+			if isCommand {
+				args = append(args, buffer)
+				buffer = ""
+				isCommand = false
+			}
+			if currentState == isEscaped {
+				args = append(args, buffer)
+				buffer = ""
+			} else {
+				buffer += string(arg)
 			}
 
-			buff += string(arg)
+		default:
+			buffer += string(arg)
 		}
 	}
 
-	args = append(args, buff)
+	if len(buffer) > 0 {
+		args = append(args, buffer)
+	}
 
 	res := []string{}
 
@@ -84,6 +100,6 @@ func CommandParser(input string) []string {
 			res = append(res, arg)
 		}
 	}
-
+	print()
 	return res
 }
