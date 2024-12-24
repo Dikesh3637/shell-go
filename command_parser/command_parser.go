@@ -28,6 +28,7 @@ func CommandParser(input string) []string {
 	skipNext := false
 	buffer := ""
 	isCommand := true
+	commandStartRune := ' '
 
 	for i, arg := range input {
 		if skipNext {
@@ -35,8 +36,20 @@ func CommandParser(input string) []string {
 			continue
 		}
 
+		if i == 0 {
+			commandStartRune = arg
+			buffer += string(arg)
+			continue
+		}
+
 		switch arg {
 		case '"':
+			if isCommand && arg == commandStartRune {
+				buffer += string(arg)
+				args = append(args, buffer)
+				buffer = ""
+				isCommand = false
+			}
 			if currentState == isEscaped {
 				currentState = isDoubleQouted
 				buffer += string(input[i+1])
@@ -47,6 +60,12 @@ func CommandParser(input string) []string {
 				buffer += string(arg)
 			}
 		case '\'':
+			if isCommand && arg == commandStartRune {
+				buffer += string(arg)
+				args = append(args, buffer)
+				buffer = ""
+				isCommand = false
+			}
 			if currentState == isEscaped {
 				currentState = isSingleQouted
 				buffer += string(input[i+1])
@@ -72,7 +91,7 @@ func CommandParser(input string) []string {
 				buffer += string(arg)
 			}
 		case ' ':
-			if isCommand {
+			if isCommand && commandStartRune != '"' && commandStartRune != '\'' {
 				args = append(args, buffer)
 				buffer = ""
 				isCommand = false
@@ -100,6 +119,5 @@ func CommandParser(input string) []string {
 			res = append(res, arg)
 		}
 	}
-	print()
 	return res
 }
