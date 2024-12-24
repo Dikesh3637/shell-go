@@ -7,7 +7,6 @@ import (
 	"github.com/codecrafters-io/shell-starter-go/valid_commands"
 	"os"
 	"os/exec"
-	"strings"
 )
 
 func main() {
@@ -28,8 +27,11 @@ func main() {
 			os.Exit(0)
 
 		case "echo":
-			echoString := strings.Join(commandSequence[1:], " ")
-			fmt.Println(echoString)
+			for _, echoString := range commandSequence[1:] {
+				fmt.Print(echoString)
+				fmt.Print(" ")
+			}
+			print("\n")
 
 		case "type":
 			if _, ok := valid_commands.ValidCommandSet[commandSequence[1]]; ok {

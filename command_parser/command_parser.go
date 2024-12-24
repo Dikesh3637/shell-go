@@ -4,10 +4,6 @@ import (
 	"strings"
 )
 
-func isSpace(char rune) bool {
-	return char == ' ' || char == '\t' || char == '\n'
-}
-
 func CommandParser(input string) []string {
 	input = strings.TrimSpace(input)
 	args := []string{}
@@ -27,8 +23,6 @@ func CommandParser(input string) []string {
 	currentState := isEscaped
 	skipNext := false
 	buffer := ""
-	isCommand := true
-	commandStartRune := ' '
 
 	for i, arg := range input {
 		if skipNext {
@@ -37,19 +31,17 @@ func CommandParser(input string) []string {
 		}
 
 		if i == 0 {
-			commandStartRune = arg
-			buffer += string(arg)
-			continue
+			if arg == '"' {
+				currentState = isDoubleQouted
+				continue
+			} else if arg == '\'' {
+				currentState = isSingleQouted
+				continue
+			}
 		}
 
 		switch arg {
 		case '"':
-			if isCommand && arg == commandStartRune {
-				buffer += string(arg)
-				args = append(args, buffer)
-				buffer = ""
-				isCommand = false
-			}
 			if currentState == isEscaped {
 				currentState = isDoubleQouted
 				buffer += string(input[i+1])
@@ -60,12 +52,6 @@ func CommandParser(input string) []string {
 				buffer += string(arg)
 			}
 		case '\'':
-			if isCommand && arg == commandStartRune {
-				buffer += string(arg)
-				args = append(args, buffer)
-				buffer = ""
-				isCommand = false
-			}
 			if currentState == isEscaped {
 				currentState = isSingleQouted
 				buffer += string(input[i+1])
@@ -91,11 +77,6 @@ func CommandParser(input string) []string {
 				buffer += string(arg)
 			}
 		case ' ':
-			if isCommand && commandStartRune != '"' && commandStartRune != '\'' {
-				args = append(args, buffer)
-				buffer = ""
-				isCommand = false
-			}
 			if currentState == isEscaped {
 				args = append(args, buffer)
 				buffer = ""
@@ -119,5 +100,6 @@ func CommandParser(input string) []string {
 			res = append(res, arg)
 		}
 	}
+
 	return res
 }
