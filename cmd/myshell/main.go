@@ -24,35 +24,3 @@ func main() {
 		command_resolver.ResolveCommand(commandSequence)
 	}
 }
-
-// func getCommands(input string) []string {
-// 	input = strings.TrimSpace(input)
-
-// 	doubleQuoted := []string{}
-// 	singleQuoted := []string{}
-
-// 	for i,char := range(input){
-// 		if char == '"' {
-// 			for j := i+1; j < len(input); j++ {
-//                 if input[j] == '"' {
-//                     doubleQuoted = append(doubleQuoted, input[i+1:j])
-//                     i = j+1
-//                     break
-//                 }
-//             }
-// 		}
-// 		if char == '\'' {
-//             for j := i+1; j < len(input); j++ {
-//                 if input[j] == '\'' {
-//                     singleQuoted = append(singleQuoted, input[i+1:j])
-//                     i = j+1
-//                     break
-//                 }
-//             }
-//         }
-
-// 	}
-
-// 	}
-
-// }

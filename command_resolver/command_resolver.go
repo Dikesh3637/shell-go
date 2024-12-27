@@ -22,7 +22,11 @@ func ResolveCommand(commandSequence []string) {
 	if redirect_idx != -1 {
 		command_args = commandSequence[1:redirect_idx]
 		redirect_args = commandSequence[redirect_idx:]
-		redirectStdout(redirect_args[1], redirect_args[0])
+		if redirect_args[0] == ">" || redirect_args[0] == "1>" || redirect_args[0] == "2>" {
+			redirectStdout(redirect_args[1], redirect_args[0])
+		} else if redirect_args[0] == "1>>" || redirect_args[0] == ">>" || redirect_args[0] == "2>>" {
+			redirectAppendStdout(redirect_args[1], redirect_args[0])
+		}
 
 	} else {
 		command_args = commandSequence[1:]
@@ -109,7 +113,7 @@ func findExecutablePath(target string) (string, error) {
 
 func findRedirectArgs(arr []string) (int, string) {
 	for i, element := range arr {
-		if element == ">" || element == "1>" || element == "2>" {
+		if element == ">" || element == "1>" || element == "2>" || element == "1>>" || element == ">>" || element == "2>>" {
 			return i, element
 		}
 	}
@@ -132,6 +136,24 @@ func redirectStdout(targetPath string, redirectOp string) error {
 		os.Stderr = file
 	} else {
 		//Set stdout to our new file
+		os.Stdout = file
+	}
+	return nil
+}
+
+func redirectAppendStdout(targetPath string, redirectOp string) error {
+	// Create parent directories if they don't exist
+	ensureDir(targetPath)
+
+	file, err := os.OpenFile(targetPath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return err
+	}
+	// Set stdout to our new file
+	if redirectOp == "2>>" {
+		os.Stderr = file
+	} else {
 		os.Stdout = file
 	}
 	return nil
