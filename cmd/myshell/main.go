@@ -4,9 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/codecrafters-io/shell-starter-go/command_parser"
-	"github.com/codecrafters-io/shell-starter-go/valid_commands"
+	"github.com/codecrafters-io/shell-starter-go/command_resolver"
 	"os"
-	"os/exec"
 )
 
 func main() {
@@ -22,54 +21,7 @@ func main() {
 			continue
 		}
 
-		switch commandSequence[0] {
-		case "exit":
-			os.Exit(0)
-
-		case "echo":
-			for _, echoString := range commandSequence[1:] {
-				fmt.Print(echoString)
-				fmt.Print(" ")
-			}
-			print("\n")
-
-		case "type":
-			if _, ok := valid_commands.ValidCommandSet[commandSequence[1]]; ok {
-				fmt.Printf("%s is a shell builtin\n", commandSequence[1])
-			} else {
-				if val, err := exec.LookPath(commandSequence[1]); err == nil {
-					fmt.Printf("%s is %s\n", commandSequence[1], val)
-				} else {
-					fmt.Printf("%s: not found\n", commandSequence[1])
-				}
-			}
-
-		case "pwd":
-			pwd, _ := os.Getwd()
-			fmt.Println(pwd)
-
-		case "cd":
-			pwd, _ := os.Getwd()
-			if len(commandSequence) == 1 {
-				fmt.Println(pwd)
-			} else {
-				if commandSequence[1] == "~" {
-					commandSequence[1] = os.Getenv("HOME")
-				}
-				if err := os.Chdir(commandSequence[1]); err != nil {
-					fmt.Printf("cd: %s: %s\n", commandSequence[1], "No such file or directory")
-				}
-			}
-
-		default:
-			cmd := exec.Command(commandSequence[0], commandSequence[1:]...)
-			cmdOutput, err := cmd.CombinedOutput()
-			if err != nil {
-				fmt.Printf("%s: %s\n", commandSequence[0], "command not found")
-			} else {
-				fmt.Print(string(cmdOutput))
-			}
-		}
+		command_resolver.ResolveCommand(commandSequence)
 	}
 }
 
