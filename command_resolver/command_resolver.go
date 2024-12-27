@@ -117,18 +117,21 @@ func findRedirectArgs(arr []string) (int, string) {
 }
 
 func redirectStdout(targetPath string, redirectOp string) error {
-	if redirectOp == ">" || redirectOp == "1>" {
-		// Create parent directories if they don't exist
-		ensureDir(targetPath)
+	// Create parent directories if they don't exist
+	ensureDir(targetPath)
 
-		// Open file for writing, create if doesn't exist, truncate if exists
-		file, err := os.OpenFile(targetPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-		if err != nil {
-			fmt.Println("Error opening file:", err)
-			return err
-		}
+	// Open file for writing, create if doesn't exist, truncate if exists
+	file, err := os.OpenFile(targetPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return err
+	}
 
-		// Set stdout to our new file
+	if redirectOp == "2>" {
+		// Set stderr to our new file
+		os.Stderr = file
+	} else {
+		//Set stdout to our new file
 		os.Stdout = file
 	}
 	return nil
