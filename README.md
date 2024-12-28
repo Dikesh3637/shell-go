@@ -2,16 +2,16 @@
 
 ### A lightweight, custom shell implementation built from scratch to explore systems programming and Go language capabilities.
 
-Key Features
+#### Key Features
 
-Advanced command parsing with quote and escape support
-Built-in commands: cd, pwd, echo, type, exit
-Dynamic external command execution
-Full environment variable and path resolution
+- Advanced command parsing with quote and escape support 
+- Built-in commands: cd, pwd, echo, type, exit 
+- Dynamic external command execution 
+- Full environment variable and path resolution 
 
 Quick Start
 
-```powershell
+```bash
 go build .\cmd\myshell\
 ./myshell.exe
 ```
